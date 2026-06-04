@@ -5,62 +5,83 @@ use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
 use App\Models\Category;
 
-
 new class extends Component
 {
     use WithPagination;
-    
+
     #[Computed]
-    public function categories(){
-        // debugging
-        dd(Category::all()->toArray());
-        return Category ::all();
-
-
-
+    public function categories()
+    {
+        return Category::latest()->paginate(10);
     }
-
 };
 ?>
 
+<div class="max-w-7xl mx-auto space-y-4">
+    <flux:heading size="xl" class="text-zinc-800 dark:text-white">Category</flux:heading>
+    <flux:subheading size="lg" class="text-zinc-600 dark:text-zinc-400">Manage your categories</flux:subheading>
+    <flux:separator variant="subtle" />
 
-<div>
-    <flux:table :paginate="$this->categories">
-    <flux:table.columns>
-        <flux:table.column>Customer</flux:table.column>
-        <flux:table.column>Date</flux:table.column>
-        <flux:table.column>Status</flux:table.column>
-        <flux:table.column>Amount</flux:table.column>
-    </flux:table.columns>
+    <flux:modal.trigger name="create-category">
+        <flux:button variant="primary" icon="plus" color="primary">Add Category</flux:button>
+    </flux:modal.trigger>
 
-    <flux:table.rows>
-        <flux:table.row>
-            <flux:table.cell>Lindsey Aminoff</flux:table.cell>
-            <flux:table.cell>Jul 29, 10:45 AM</flux:table.cell>
-            <flux:table.cell><flux:badge color="green" size="sm" inset="top bottom">Paid</flux:badge></flux:table.cell>
-            <flux:table.cell variant="strong">$49.00</flux:table.cell>
-        </flux:table.row>
+    <livewire:category.create /> 
 
-        <flux:table.row>
-            <flux:table.cell>Hanna Lubin</flux:table.cell>
-            <flux:table.cell>Jul 28, 2:15 PM</flux:table.cell>
-            <flux:table.cell><flux:badge color="green" size="sm" inset="top bottom">Paid</flux:badge></flux:table.cell>
-            <flux:table.cell variant="strong">$312.00</flux:table.cell>
-        </flux:table.row>
+    {{-- table --}}
+    <div class="overflow-x-auto">
+       <flux:table :paginate="$this->categories">
+            <flux:table.columns>
+                <flux:table.column>No</flux:table.column>
+                <flux:table.column>Name</flux:table.column>
+                <flux:table.column>Description</flux:table.column>
+                <flux:table.column>Created At</flux:table.column>
+                <flux:table.column>Action</flux:table.column>
+            </flux:table.columns>
 
-        <flux:table.row>
-            <flux:table.cell>Kianna Bushevi</flux:table.cell>
-            <flux:table.cell>Jul 30, 4:05 PM</flux:table.cell>
-            <flux:table.cell><flux:badge color="zinc" size="sm" inset="top bottom">Refunded</flux:badge></flux:table.cell>
-            <flux:table.cell variant="strong">$132.00</flux:table.cell>
-        </flux:table.row>
+            <flux:table.rows>
+                @foreach ($this->categories as $category)
+                    <flux:table.row :key="$category->id">
+                        
+                    <flux:table.cell>
+                            {{ $loop->iteration + $this->categories->firstItem() - 1 }}
+                        </flux:table.cell>
+                        
+                        <flux:table.cell class="flex items-center gap-3">
+                            {{ $category->name }}
+                        </flux:table.cell>
 
-        <flux:table.row>
-            <flux:table.cell>Gustavo Geidt</flux:table.cell>
-            <flux:table.cell>Jul 27, 9:30 AM</flux:table.cell>
-            <flux:table.cell><flux:badge color="green" size="sm" inset="top bottom">Paid</flux:badge></flux:table.cell>
-            <flux:table.cell variant="strong">$31.00</flux:table.cell>
-        </flux:table.row>
-    </flux:table.rows>
-</flux:table>
+                        <flux:table.cell class="text-zinc-500 dark:text-zinc-400">
+                            {{ $category->description ?? '-' }}
+                        </flux:table.cell>
+
+                        <flux:table.cell class="whitespace-nowrap">
+                            {{ $category->created_at?->diffForHumans() ?? '-' }}
+                        </flux:table.cell>
+
+                        <flux:table.cell>
+
+
+                            <flux:dropdown>
+                                <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom"></flux:button>
+
+                                <flux:menu>
+                                    <flux:menu.item icon="pencil" wire:click="edit({{ $category->id }})">Edit</flux:menu.item>
+
+                                    <flux:menu.separator />
+
+                                    {{-- <flux:menu.item variant="danger" icon="trash" wire:click="$dispatch('confirm-delete', id: $category->id)">Delete</flux:menu.item> --}}
+                                    <flux:menu.item variant="danger" icon="trash" wire:click="$dispatch('confirm-delete', {id: {{ $category->id }}})">Delete</flux:menu.item>
+                                </flux:menu>
+                            </flux:dropdown>
+                        </flux:table.cell>
+                    </flux:table.row>
+                @endforeach
+            </flux:table.rows>
+        </flux:table>
+
+
+    </div>
 </div>
+
+    

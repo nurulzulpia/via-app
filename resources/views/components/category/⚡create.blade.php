@@ -5,13 +5,33 @@ use App\livewire\Forms\CategoryForm;
 
 new class extends Component
 {
-     public CategoryForm $form;
-    //
+    // instance class categoryform
+    public CategoryForm $form;
+
+    public function save()
+    {
+        $this->form->store();
+        Flux::modal('create-category')->close();
+
+        // session
+        session()->flash('success', 'Category created successfully');
+
+        $this->redirectRoute('category.index',navigate: true);
+
+    }
+
+    public function resetForm()
+    {
+        $this->resetValidation();
+        $this->form->reset();
+    }
+    
+
 };
 ?>
 
 <div>
-    <flux:modal name="create-category" class="md:w-150">
+    <flux:modal name="create-category" class="md:w-150" x-on:close="$wire.resetForm()" >
         <form class="space-y-8" wire:submit.prevent="save">
             {{-- header --}}
             <div class="space-y-2">

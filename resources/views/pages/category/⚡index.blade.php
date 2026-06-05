@@ -14,6 +14,11 @@ new class extends Component
     {
         return Category::latest()->paginate(10);
     }
+
+     public function edit($id){
+       $this->dispatch('edit-category', id: $id);
+    }
+
 };
 ?>
 
@@ -27,6 +32,7 @@ new class extends Component
     </flux:modal.trigger>
 
     <livewire:category.create /> 
+    <livewire:category.edit />
     <x-flash-message />
 
     {{-- table --}}
